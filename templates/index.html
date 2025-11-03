@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potato Leaf Disease Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 30px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .container {
+            max-width: -webkit-fill-available;
+        }
+
+        .card {
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .img-preview {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .disease-content {
+            text-align: justify;
+            font-size: 15px;
+        }
+
+        .remedies-list li {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <!-- Header -->
+    <div class="header">
+        🥔 Potato Leaf Disease Detection System 🍃
+    </div>
+
+    <!-- Main Content -->
+    <div class="container m-4 d-flex align-items-center justify-content-center gap-3">
+        <!-- Disease Information Card -->
+        <div class="card shadow-lg p-4" style="width: 30%;">
+            <h3 class="text-center mb-3">🦠 Classification of Potato Leaf Disease</h3>
+            <hr>
+            <div class="disease-content">
+                <h5>🌱 Early Blight (Alternaria solani)</h5>
+                <p>
+                    - Small brown spots with concentric rings appear on older leaves.
+                    <br> - Leaves may turn yellow and fall off prematurely.
+                    <br> - Caused by prolonged moisture and warm weather.
+                </p>
+                <h5>🌿 Late Blight (Phytophthora infestans)</h5>
+                <p>
+                    - Water-soaked lesions with a fuzzy white growth underneath.
+                    <br> - Leaves turn brown, shrivel, and die rapidly.
+                    <br> - Spreads quickly in cool, damp conditions.
+                </p>
+            </div>
+        </div>
+
+        <!-- Upload and Prediction Card -->
+        <div class="card shadow-lg p-4 d-flex align-items-center justify-content-center flex-grow-1">
+            <h3 class="text-center">📸 Upload a Potato Leaf Image</h3>
+
+            <form id="upload-form" class="text-center mt-2" enctype="multipart/form-data">
+                <input type="file" name="file" class="form-control mb-3" required>
+                <button type="submit" class="btn btn-success">Upload & Predict</button>
+            </form>
+
+            <div id="error-message" class="alert alert-danger text-center mt-3" style="display:none;"></div>
+
+            <div class="d-flex justify-content-evenly">
+                <div id="original-image-container" class="text-center mt-2 px-3" style="display:none;">
+                    <h4>Original Image</h4>
+                    <img id="original-image" class="img-fluid img-preview shadow" onerror="this.style.display='none'">
+                </div>
+
+                <div id="predicted-area-container" class="text-center mt-2 px-3" style="display:none;">
+                    <h4>Infected Area</h4>
+                    <img id="predicted-image" class="img-fluid img-preview shadow">
+                </div>
+            </div>
+
+            <div class="text-center">
+                <div id="prediction-result" class="mt-2" style="display:none;">
+                    <hr>
+                    <h4>Prediction: <span id="prediction-text" class="text-danger"></span></h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- Remedies Information Card -->
+        <div class="card shadow-lg p-4" style="width: 30%;">
+            <h3 class="text-center mb-3">🛡️ Remedies for Potato Leaf Diseases</h3>
+            <hr>
+            <ul class="list-unstyled remedies-list">
+                <li><strong>✅ Crop Rotation:</strong> Avoid planting potatoes in the same soil each year.</li>
+                <li><strong>🌞 Proper Irrigation:</strong> Water the base of plants to keep foliage dry.</li>
+                <li><strong>🍂 Remove Infected Leaves:</strong> Dispose of infected leaves to prevent spread.</li>
+                <li><strong>🧪 Fungicides:</strong> Apply copper-based fungicides to protect crops.</li>
+                <li><strong>💧 Mulching:</strong> Reduce soil splash by using organic mulch.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Disease Info Modal -->
+    <div class="modal fade" id="diseaseModal" tabindex="-1" aria-labelledby="diseaseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl"> <!-- Increased modal size to extra-large -->
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="diseaseModalLabel">🌱 Disease Information & Prediction</h5>
+                    <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Grid Layout Inside Modal -->
+                    <div class="row">
+                        <!-- Left Side: Image -->
+                        <div class="col-md-5 text-center">
+                            <h5>🖼️ Infected Area</h5>
+                            <img id="modal-predicted-image" class="img-fluid img-preview shadow-lg" style="max-height: 350px; border: 2px solid #4CAF50; border-radius: 8px;" />
+                        </div>
+
+                        <!-- Right Side: Disease Information -->
+                        <div class="col-md-7">
+                            <h4 id="disease-name" class="text-center mb-3">Prediction Result: </h4>
+                            <hr>
+                            <h5 class="mt-2">🧐 Cause of the Disease</h5>
+                            <p id="disease-cause" class="text-justify"></p>
+
+                            <h5 class="mt-3">🛡️ Prevention & Control Measures</h5>
+                            <ul id="disease-remedies" class="list-unstyled"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        © 2025 Potato Leaf Disease Detection
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Disease Information Database
+        const diseaseInfo = {
+            "Early-Blight": {
+                name: "🌱 Early Blight (Alternaria solani)",
+                cause: "Early blight is caused by the fungus *Alternaria solani*, which thrives in warm, humid conditions. It usually attacks older leaves first.",
+                remedies: [
+                    "✅ Rotate crops to prevent disease buildup.",
+                    "🌞 Avoid overhead watering and keep foliage dry.",
+                    "🍂 Remove infected leaves and destroy them.",
+                    "🧪 Apply fungicides such as chlorothalonil or copper-based products."
+                ]
+            },
+            "Late-Blight": {
+                name: "🌿 Late Blight (Phytophthora infestans)",
+                cause: "Late blight is caused by *Phytophthora infestans*, a water mold that thrives in cool, damp weather. It spreads rapidly through wind and rain.",
+                remedies: [
+                    "✅ Use certified disease-free seeds.",
+                    "🌞 Ensure proper drainage to reduce standing water.",
+                    "🧪 Apply fungicides containing mancozeb or chlorothalonil.",
+                    "🍂 Remove and dispose of infected plant material."
+                ]
+            },
+            "Healthy-plant": {
+                name: "✅ Healthy Plant",
+                cause: "No signs of disease detected. The plant is healthy and growing properly.",
+                remedies: [
+                    "🌱 Continue proper irrigation and soil management.",
+                    "🌞 Ensure sufficient sunlight and ventilation.",
+                    "💧 Avoid over-watering to prevent fungal infections."
+                ]
+            }
+        };
+
+        // Function to show disease information in the modal
+        function showDiseaseModal(prediction, processedImageUrl) {
+            if (diseaseInfo[prediction]) {
+                const info = diseaseInfo[prediction];
+
+                // Set modal content dynamically
+                $('#disease-name').text(info.name);
+                $('#disease-cause').text(info.cause);
+
+                // Populate remedies list
+                const remediesList = info.remedies.map(item => `<li>${item}</li>`).join('');
+                $('#disease-remedies').html(remediesList);
+
+                // Show infected area image in the modal if available
+                if (processedImageUrl) {
+                    $('#modal-predicted-image').attr('src', processedImageUrl);
+                } else {
+                    $('#modal-predicted-image').attr('src', 'https://via.placeholder.com/350?text=No+Infected+Area+Detected');
+                }
+
+                // Show the modal
+                $('#diseaseModal').modal('show');
+            } else {
+                console.error('No information available for this disease.');
+            }
+        }
+
+        // Handle form submission using AJAX
+        $(document).ready(function () {
+            $('#upload-form').on('submit', function (e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+
+                // Hide previous messages and containers
+                $('#error-message').hide();
+                $('#prediction-result').hide();
+                $('#original-image-container').hide();
+                $('#predicted-area-container').hide();
+
+                // AJAX request to send the form data
+                $.ajax({
+                    url: '/', // Flask route that processes the image
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.error) {
+                            $('#error-message').text(response.error).show();
+                        } else {
+                            // Show original image
+                            $('#original-image').attr('src', response.image_url);
+                            $('#original-image-container').show();
+
+                            // Show predicted area if available and not "Healthy-plant"
+                            if (response.prediction !== "Healthy-plant") {
+                                if (response.processed_image_url) {
+                                    $('#predicted-image').attr('src', response.processed_image_url);
+                                    $('#predicted-area-container').show();
+                                }
+                            } else {
+                                $('#predicted-area-container').hide();
+                            }
+
+                            // Show prediction result
+                            $('#prediction-text').text(response.prediction);
+                            $('#prediction-result').show();
+
+                            // Show modal with disease details based on prediction
+                            showDiseaseModal(response.prediction, response.processed_image_url);
+                        }
+                    },
+                    error: function () {
+                        $('#error-message').text('Something went wrong, please try again.').show();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
