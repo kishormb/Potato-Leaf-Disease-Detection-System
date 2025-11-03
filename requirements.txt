@@ -1,6 +1,7 @@
 Flask
 requests
 numpy
-opencv-python-headless
+opencv-python
 tensorflow
 Werkzeug
+gunicorn
